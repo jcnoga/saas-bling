@@ -87,8 +87,8 @@
             padding: 2rem;
         }
 
-        /* Estilos da Tela de Login */
-        #login-screen {
+        /* Estilos das Telas de Autenticação (Login / Cadastro) */
+        #login-screen, #register-screen {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -96,7 +96,7 @@
             background-color: var(--primary-color);
         }
 
-        #login-form {
+        #login-form, #register-form {
             background-color: var(--surface-color);
             padding: 2.5rem;
             border-radius: var(--border-radius);
@@ -106,12 +106,12 @@
             text-align: center;
         }
         
-        #login-form h2 {
+        #login-form h2, #register-form h2 {
             margin-bottom: 1.5rem;
             color: var(--text-color);
         }
 
-        #login-form input {
+        #login-form input, #register-form input {
             width: 100%;
             padding: 0.8rem;
             margin-bottom: 1rem;
@@ -119,7 +119,7 @@
             border-radius: var(--border-radius);
         }
 
-        #login-form button {
+        #login-form button, #register-form button {
             width: 100%;
             padding: 0.8rem;
             background-color: var(--primary-color);
@@ -131,14 +131,34 @@
             transition: background-color 0.3s;
         }
         
-        #login-form button:hover {
+        #login-form button:hover, #register-form button:hover {
             background-color: #4338ca;
+        }
+
+        #login-error, #register-msg {
+            margin-top: 1rem;
+            visibility: hidden; /* Oculto por padrão */
+            font-size: 0.9rem;
         }
 
         #login-error {
             color: var(--danger-color);
-            margin-top: 1rem;
-            visibility: hidden; /* Oculto por padrão */
+        }
+
+        .auth-link {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        .auth-link a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
         }
 
         /* Estilos do Dashboard */
@@ -333,11 +353,31 @@
         <!-- ====================================================================== -->
         <section id="login-screen">
             <form id="login-form">
-                <h2>Login - Dashboard Financeiro</h2>
+                <h2>Login - Dashboard</h2>
                 <input type="text" id="username" placeholder="Usuário (ex: admin)" required>
-                <input type="password" id="password" placeholder="Senha (ex: admin)" required>
+                <input type="password" id="password" placeholder="Senha" required>
                 <button type="submit">Entrar</button>
                 <p id="login-error">Usuário ou senha inválidos.</p>
+                
+                <!-- Link para cadastro -->
+                <p class="auth-link">Não possui uma conta? <a href="#" id="go-to-register">Cadastre-se</a></p>
+            </form>
+        </section>
+
+        <!-- ====================================================================== -->
+        <!-- TELA DE CADASTRO (Oculta inicialmente)                                 -->
+        <!-- ====================================================================== -->
+        <section id="register-screen" class="hidden">
+            <form id="register-form">
+                <h2>Criar Conta</h2>
+                <input type="text" id="reg-username" placeholder="Nome de usuário" required>
+                <input type="password" id="reg-password" placeholder="Senha" required>
+                <input type="password" id="reg-password-confirm" placeholder="Confirme a senha" required>
+                <button type="submit">Cadastrar</button>
+                <p id="register-msg"></p>
+                
+                <!-- Link para voltar ao login -->
+                <p class="auth-link">Já possui uma conta? <a href="#" id="go-to-login">Faça login</a></p>
             </form>
         </section>
 
@@ -447,73 +487,42 @@
 
     <!-- JavaScript Interno -->
     <script>
-	
-	
-	const firebaseConfig = {
-  apiKey: "AIzaSyD344kcvkOOdbjuHIvT_QFKuEZTAv5bdQw",
-  authDomain: "saas-bling.firebaseapp.com",
-  projectId: "saas-bling",
-  storageBucket: "saas-bling.firebasestorage.app",
-  messagingSenderId: "306250086612",
-  appId: "1:306250086612:web:df917dec1b30875a316341",
-  measurementId: "G-GWJZDPVP49"
-};
-	
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyD344kcvkOOdbjuHIvT_QFKuEZTAv5bdQw",
+        authDomain: "saas-bling.firebaseapp.com",
+        projectId: "saas-bling",
+        storageBucket: "saas-bling.firebasestorage.app",
+        messagingSenderId: "306250086612",
+        appId: "1:306250086612:web:df917dec1b30875a316341",
+        measurementId: "G-GWJZDPVP49"
+    };
+    
     document.addEventListener('DOMContentLoaded', () => {
 
         /* 
          * ======================================================================
          * 1. SIMULAÇÃO DE API (BLING SIMULADO) E GERAÇÃO DE DADOS
-         * Esta seção simula a obtenção de dados de um sistema ERP como o Bling.
-         * O faturamento mensal é calibrado para ficar em torno de R$50.000.
          * ======================================================================
         */
         const BlingAPISimulator = {
-            // Definição de produtos com custo, preço de venda e categoria
-            products: [
-                { id: 1, name: 'Smartphone Pro X', category: 'Eletrônicos', cost: 1800, price: 2999.90, stock: 30 },
-                { id: 2, name: 'Fone Bluetooth SoundMax', category: 'Acessórios', cost: 150, price: 349.90, stock: 80 },
-                { id: 3, name: 'Capa Protetora Silicone', category: 'Acessórios', cost: 15, price: 59.90, stock: 150 },
-                { id: 4, name: 'Notebook Gamer Fire', category: 'Eletrônicos', cost: 4500, price: 6999.90, stock: 15 },
-                { id: 5, name: 'Camiseta Algodão Premium', category: 'Vestuário', cost: 25, price: 79.90, stock: 200 },
-                { id: 6, name: 'Calça Jeans Slim Fit', category: 'Vestuário', cost: 70, price: 199.90, stock: 120 },
-                { id: 7, name: 'Tênis Running Boost', category: 'Calçados', cost: 120, price: 349.90, stock: 18 }, // Estoque baixo
-                { id: 8, name: 'Mochila Executiva Impermeável', category: 'Acessórios', cost: 90, price: 249.90, stock: 45 }, // Estoque em atenção
-                { id: 9, name: 'Smartwatch Health+', category: 'Eletrônicos', cost: 600, price: 1299.90, stock: 40 },
-                { id: 10, name: 'Livro "A Ascensão do Dragão"', category: 'Livros', cost: 20, price: 49.90, stock: 100 },
-            ],
-
-            // Clientes para simulação de vendas
-            customers: [
-                { id: 101, name: 'João da Silva' }, { id: 102, name: 'Maria Oliveira' },
-                { id: 103, name: 'Carlos Pereira' }, { id: 104, name: 'Ana Costa' },
-                { id: 105, name: 'Pedro Martins' }
-            ],
-
-            /**
-             * Gera vendas diárias simuladas para um número específico de dias.
-             * A lógica ajusta a quantidade de vendas para atingir o faturamento alvo.
-             * @param {number} days - O número de dias para gerar vendas.
-             * @returns {Array} - Uma lista de objetos de venda.
-             */
+            products:,
+            customers:,
             generateDailySales(days = 90) {
-                const sales = [];
-                const dailyTarget = 50000 / 30; // Faturamento diário médio para atingir R$50k/mês
-
+                const sales =[];
+                const dailyTarget = 50000 / 30; 
                 for (let i = 0; i < days; i++) {
                     const date = new Date();
                     date.setDate(date.getDate() - i);
                     let salesForDay = 0;
-
-                    // Gera vendas aleatórias até atingir próximo da meta diária com variação
                     while (salesForDay < dailyTarget * (0.8 + Math.random() * 0.4)) {
-                        const product = this.products[Math.floor(Math.random() * this.products.length)];
+                        const product = this.products;
                         const quantity = (product.category === 'Acessórios' || product.category === 'Vestuário') ? (Math.floor(Math.random() * 3) + 1) : 1;
-                        const customer = this.customers[Math.floor(Math.random() * this.customers.length)];
+                        const customer = this.customers;
                         
                         sales.push({
                             id: sales.length + 1,
-                            date: date.toISOString().split('T')[0],
+                            date: date.toISOString().split('T'),
                             customerId: customer.id,
                             product,
                             quantity,
@@ -522,50 +531,119 @@
                         salesForDay += product.price * quantity;
                     }
                 }
-                return sales.sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordena por data
+                return sales.sort((a, b) => new Date(a.date) - new Date(b.date)); 
             },
-
             getProducts() { return this.products; },
-            getCategories() { return [...new Set(this.products.map(p => p.category))]; }
+            getCategories() { return; }
         };
 
         /* 
          * ======================================================================
-         * 2. LÓGICA DO SISTEMA DE LOGIN SIMULADO
-         * Utiliza localStorage para persistir o estado de login no navegador.
+         * 2. LÓGICA DO SISTEMA DE LOGIN E CADASTRO SIMULADO
+         * Utiliza localStorage para persistir usuários e a sessão
          * ======================================================================
         */
         const loginScreen = document.getElementById('login-screen');
+        const registerScreen = document.getElementById('register-screen');
         const mainContent = document.getElementById('main-content');
+        
         const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        
         const loginError = document.getElementById('login-error');
+        const registerMsg = document.getElementById('register-msg');
+        
         const logoutButton = document.getElementById('logout-button');
         const welcomeMessage = document.getElementById('welcome-message');
 
+        const goToRegister = document.getElementById('go-to-register');
+        const goToLogin = document.getElementById('go-to-login');
+
+        // Inicializa o "banco de dados" de usuários simulados
+        let usersDB = JSON.parse(localStorage.getItem('dashboard_users'));
+        if (!usersDB) {
+            // Conta admin padrão caso seja o primeiro acesso
+            usersDB = { admin: 'admin' };
+            localStorage.setItem('dashboard_users', JSON.stringify(usersDB));
+        }
+
+        // Navegação entre Login e Cadastro
+        goToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginScreen.classList.add('hidden');
+            registerScreen.classList.remove('hidden');
+            registerForm.reset();
+            registerMsg.style.visibility = 'hidden';
+        });
+
+        goToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerScreen.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            loginForm.reset();
+            loginError.style.visibility = 'hidden';
+        });
+
         /**
-         * Verifica no localStorage se o usuário está logado e alterna a visibilidade das telas.
+         * Verifica se o usuário está logado
          */
         function checkLoginState() {
             const loggedInUser = localStorage.getItem('loggedInUser');
             if (loggedInUser) {
                 welcomeMessage.textContent = `Bem-vindo(a), ${loggedInUser}!`;
                 loginScreen.classList.add('hidden');
+                registerScreen.classList.add('hidden');
                 mainContent.classList.remove('hidden');
-                initializeApp(); // Inicia o dashboard somente após login
+                initializeApp(); 
             } else {
                 loginScreen.classList.remove('hidden');
+                registerScreen.classList.add('hidden');
                 mainContent.classList.add('hidden');
             }
         }
 
-        // Evento de submit do formulário de login
+        // Lógica de Submissão do Cadastro
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value;
+            const confirmPassword = document.getElementById('reg-password-confirm').value;
+
+            if (password !== confirmPassword) {
+                registerMsg.textContent = "As senhas não coincidem.";
+                registerMsg.style.color = "var(--danger-color)";
+                registerMsg.style.visibility = "visible";
+                return;
+            }
+
+            if (usersDB) {
+                registerMsg.textContent = "Nome de usuário já existe.";
+                registerMsg.style.color = "var(--danger-color)";
+                registerMsg.style.visibility = "visible";
+                return;
+            }
+
+            // Salva o novo usuário no localStorage
+            usersDB = password;
+            localStorage.setItem('dashboard_users', JSON.stringify(usersDB));
+
+            registerMsg.textContent = "Conta criada com sucesso! Faça login.";
+            registerMsg.style.color = "var(--success-color)";
+            registerMsg.style.visibility = "visible";
+
+            setTimeout(() => {
+                goToLogin.click();
+            }, 2000);
+        });
+
+        // Lógica de Submissão de Login
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
 
-            // Simulação de autenticação (usuário/senha fixos)
-            if (username === 'admin' && password === 'admin') {
+            // Verifica as credenciais no "banco" (usersDB)
+            if (usersDB && usersDB === password) {
                 localStorage.setItem('loggedInUser', username);
                 checkLoginState();
             } else {
@@ -574,10 +652,9 @@
             }
         });
 
-        // Evento de clique no botão de logout
+        // Logout
         logoutButton.addEventListener('click', () => {
             localStorage.removeItem('loggedInUser');
-            // Destrói instâncias dos gráficos para evitar memory leaks e bugs de renderização
             if(window.salesChartInstance) window.salesChartInstance.destroy();
             if(window.categoryChartInstance) window.categoryChartInstance.destroy();
             checkLoginState();
@@ -589,26 +666,18 @@
          * ======================================================================
         */
         let allSalesData = [];
-        let allProductsData = [];
+        let allProductsData =[];
 
-        /**
-         * Função principal que inicializa todo o dashboard.
-         */
         function initializeApp() {
-            // Gera os dados simulados (apenas uma vez por sessão)
             if (allSalesData.length === 0) {
                 allSalesData = BlingAPISimulator.generateDailySales();
                 allProductsData = BlingAPISimulator.getProducts();
             }
-            
             populateSimulationProducts();
             setupEventListeners();
-            updateDashboard(30); // Renderiza o dashboard com o período padrão
+            updateDashboard(30); 
         }
 
-        /**
-         * Configura todos os event listeners da aplicação para interatividade.
-         */
         function setupEventListeners() {
             document.getElementById('period-filter').addEventListener('change', (e) => {
                 updateDashboard(Number(e.target.value));
@@ -618,44 +687,29 @@
             document.getElementById('simulate-btn').addEventListener('click', runPriceSimulation);
         }
 
-        /**
-         * Filtra os dados de vendas com base no período selecionado.
-         * @param {number} days - O número de dias a serem considerados (ex: 30, 60, 90).
-         * @returns {Array} - Vendas filtradas para o período.
-         */
         function filterDataByPeriod(days) {
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - days);
             return allSalesData.filter(sale => new Date(sale.date) >= cutoffDate);
         }
 
-        /**
-         * Orquestra a atualização de todos os componentes do dashboard.
-         * @param {number} days - O período em dias.
-         */
         function updateDashboard(days) {
             const filteredSales = filterDataByPeriod(days);
             
-            // --- Cálculos Financeiros ---
             const grossRevenue = calculateGrossRevenue(filteredSales);
-            // Calcula o número de vendas únicas (agrupando por data e cliente)
             const uniqueSalesCount = new Set(filteredSales.map(s => s.date + s.customerId)).size;
             const averageTicket = calculateAverageTicket(grossRevenue, uniqueSalesCount);
             const cmv = calculateCMV(filteredSales);
-            // Custos fixos simulados (aluguel, salários, etc.) para a loja de 100m²
-            // Proporcional ao período selecionado para manter a coerência
             const fixedCosts = 12000 * (days / 30); 
             const netProfit = calculateNetProfit(grossRevenue, cmv, fixedCosts);
             const profitMargin = calculateProfitMargin(netProfit, grossRevenue);
 
-            // --- Atualização da UI ---
             updateKPIs({ grossRevenue, netProfit, averageTicket, profitMargin });
             updateSalesChart(filteredSales, days);
             updateCategoryChart(filteredSales);
             updateStockTable();
         }
 
-        // --- Funções de Cálculo Financeiro ---
         const calculateGrossRevenue = (sales) => sales.reduce((acc, sale) => acc + sale.total, 0);
         const calculateAverageTicket = (revenue, count) => (count > 0 ? revenue / count : 0);
         const calculateCMV = (sales) => sales.reduce((acc, sale) => acc + (sale.product.cost * sale.quantity), 0);
@@ -663,7 +717,6 @@
         const calculateProfitMargin = (profit, revenue) => (revenue > 0 ? (profit / revenue) * 100 : 0);
         const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         
-        // --- Funções de Atualização da Interface (UI) ---
         function updateKPIs({ grossRevenue, netProfit, averageTicket, profitMargin }) {
             document.getElementById('kpi-faturamento-bruto').textContent = formatCurrency(grossRevenue);
             document.getElementById('kpi-lucro-liquido').textContent = formatCurrency(netProfit);
@@ -673,37 +726,30 @@
         
         function updateSalesChart(sales, days) {
             const salesByDay = {};
-            const labels = [];
+            const labels =[];
             
             for (let i = days - 1; i >= 0; i--) {
                 const date = new Date();
                 date.setDate(date.getDate() - i);
                 const label = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
                 labels.push(label);
-                salesByDay[date.toISOString().split('T')[0]] = 0;
+                salesByDay] = 0;
             }
 
             sales.forEach(sale => {
-                if (salesByDay[sale.date] !== undefined) salesByDay[sale.date] += sale.total;
+                if (salesByDay !== undefined) salesByDay += sale.total;
             });
 
             const data = Object.values(salesByDay);
             const ctx = document.getElementById('salesChart').getContext('2d');
             
-            if(window.salesChartInstance) window.salesChartInstance.destroy(); // Previne sobreposição
+            if(window.salesChartInstance) window.salesChartInstance.destroy(); 
 
             window.salesChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels,
-                    datasets: [{
-                        label: 'Faturamento Diário',
-                        data,
-                        borderColor: 'rgba(79, 70, 229, 1)',
-                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
+                    datasets:
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
@@ -712,7 +758,7 @@
         function updateCategoryChart(sales) {
             const salesByCategory = sales.reduce((acc, sale) => {
                 const cat = sale.product.category;
-                acc[cat] = (acc[cat] || 0) + sale.total;
+                acc = (acc || 0) + sale.total;
                 return acc;
             }, {});
             
@@ -727,9 +773,9 @@
                 type: 'doughnut',
                 data: {
                     labels,
-                    datasets: [{
+                    datasets:[{
                         data,
-                        backgroundColor: ['#4f46e5', '#3b82f6', '#10b981', '#f97316', '#ef4444', '#8b5cf6']
+                        backgroundColor:
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -801,25 +847,21 @@
         function exportToPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            const period = document.getElementById('period-filter').selectedOptions[0].text;
+            const period = document.getElementById('period-filter').selectedOptions.text;
             
             doc.setFontSize(18);
             doc.text("Relatório Financeiro", 14, 22);
             doc.setFontSize(11);
             doc.text(`Período: ${period}`, 14, 30);
             
-            const kpiData = [
-                ["Faturamento Bruto", document.getElementById('kpi-faturamento-bruto').textContent],
-                ["Lucro Líquido Estimado", document.getElementById('kpi-lucro-liquido').textContent],
-                ["Ticket Médio", document.getElementById('kpi-ticket-medio').textContent],
-                ["Margem de Lucro", document.getElementById('kpi-margem-lucro').textContent],
+            const kpiData =,,,,
             ];
             
-            doc.autoTable({ startY: 40, head: [['Indicador', 'Valor']], body: kpiData });
+            doc.autoTable({ startY: 40, head:], body: kpiData });
             doc.autoTable({
                 startY: doc.previousAutoTable.finalY + 10,
-                head: [['Produto', 'Categoria', 'Estoque Atual']],
-                body: allProductsData.map(p => [p.name, p.category, p.stock]),
+                head:],
+                body: allProductsData.map(p =>),
             });
             
             doc.save(`relatorio-financeiro-${new Date().toISOString().slice(0,10)}.pdf`);
@@ -830,17 +872,10 @@
             const salesToExport = filterDataByPeriod(days);
             
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Data;Produto;Categoria;Quantidade;Valor_Unitario;Total_Venda\r\n"; // Usando ; como separador
+            csvContent += "Data;Produto;Categoria;Quantidade;Valor_Unitario;Total_Venda\r\n"; 
             
             salesToExport.forEach(sale => {
-                const row = [
-                    sale.date,
-                    `"${sale.product.name}"`, // Aspas para garantir que vírgulas no nome não quebrem o CSV
-                    sale.product.category,
-                    sale.quantity,
-                    sale.product.price.toFixed(2).replace('.', ','),
-                    sale.total.toFixed(2).replace('.', ',')
-                ].join(';');
+                const row =.join(';');
                 csvContent += row + "\r\n";
             });
             
@@ -856,7 +891,6 @@
         /* 
          * ======================================================================
          * 5. INICIALIZAÇÃO DA APLICAÇÃO
-         * Verifica o estado de login assim que o DOM estiver carregado.
          * ======================================================================
         */
         checkLoginState();
