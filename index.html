@@ -12,14 +12,6 @@
 
     <!-- CSS Interno -->
     <style>
-        /* 
-         * ======================================================================
-         * CSS - ESTILIZAÇÃO DA APLICAÇÃO
-         * Design minimalista, moderno e responsivo.
-         * ======================================================================
-        */
-
-        /* Variáveis de Cores e Estilos Globais */
         :root {
             --primary-color: #4f46e5;
             --secondary-color: #6b7280;
@@ -46,7 +38,6 @@
             line-height: 1.6;
         }
 
-        /* Estrutura Principal da Aplicação */
         #app {
             display: flex;
             flex-direction: column;
@@ -137,8 +128,9 @@
 
         #login-error, #register-msg {
             margin-top: 1rem;
-            visibility: hidden; /* Oculto por padrão */
+            visibility: hidden;
             font-size: 0.9rem;
+            min-height: 20px;
         }
 
         #login-error {
@@ -167,7 +159,6 @@
             gap: 1.5rem;
         }
 
-        /* Filtros e Controles */
         .filters {
             background-color: var(--surface-color);
             padding: 1rem;
@@ -201,7 +192,6 @@
             background-color: #4338ca;
         }
 
-        /* Cards de KPIs (Indicadores Chave de Performance) */
         .kpi-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -228,7 +218,6 @@
             color: var(--primary-color);
         }
 
-        /* Gráficos */
         .charts {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -244,9 +233,8 @@
             min-height: 400px;
         }
 
-        /* Tabela de Estoque */
         .stock-table-container {
-            overflow-x: auto; /* Garante rolagem horizontal em telas pequenas */
+            overflow-x: auto;
         }
         
         .stock-table {
@@ -279,7 +267,6 @@
         .stock-status.medium { background-color: var(--warning-color); }
         .stock-status.ok { background-color: var(--success-color); }
         
-        /* Seção de Simulação de Preços */
         .simulation-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -320,70 +307,52 @@
             font-size: 1.5rem;
         }
 
-        /* Classes Utilitárias */
         .hidden {
             display: none !important;
         }
 
-        /* Media Queries para Responsividade */
         @media (max-width: 992px) {
-            .charts {
-                grid-template-columns: 1fr;
-            }
+            .charts { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            main {
-                padding: 1rem;
-            }
+            header { flex-direction: column; gap: 1rem; }
+            main { padding: 1rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Estrutura principal da aplicação -->
     <div id="app">
 
-        <!-- ====================================================================== -->
-        <!-- TELA DE LOGIN (Visível inicialmente)                                   -->
-        <!-- ====================================================================== -->
+        <!-- TELA DE LOGIN -->
         <section id="login-screen">
             <form id="login-form">
                 <h2>Login - Dashboard</h2>
-                <input type="text" id="username" placeholder="Usuário (ex: admin)" required>
-                <input type="password" id="password" placeholder="Senha" required>
+                <input type="email" id="email" placeholder="Seu E-mail" required>
+                <input type="password" id="password" placeholder="Sua Senha" required>
                 <button type="submit">Entrar</button>
-                <p id="login-error">Usuário ou senha inválidos.</p>
+                <p id="login-error">E-mail ou senha inválidos.</p>
                 
-                <!-- Link para cadastro -->
                 <p class="auth-link">Não possui uma conta? <a href="#" id="go-to-register">Cadastre-se</a></p>
             </form>
         </section>
 
-        <!-- ====================================================================== -->
-        <!-- TELA DE CADASTRO (Oculta inicialmente)                                 -->
-        <!-- ====================================================================== -->
+        <!-- TELA DE CADASTRO -->
         <section id="register-screen" class="hidden">
             <form id="register-form">
                 <h2>Criar Conta</h2>
-                <input type="text" id="reg-username" placeholder="Nome de usuário" required>
-                <input type="password" id="reg-password" placeholder="Senha" required>
+                <input type="email" id="reg-email" placeholder="E-mail" required>
+                <input type="password" id="reg-password" placeholder="Senha (mínimo 6 caracteres)" required>
                 <input type="password" id="reg-password-confirm" placeholder="Confirme a senha" required>
                 <button type="submit">Cadastrar</button>
                 <p id="register-msg"></p>
                 
-                <!-- Link para voltar ao login -->
                 <p class="auth-link">Já possui uma conta? <a href="#" id="go-to-login">Faça login</a></p>
             </form>
         </section>
 
-        <!-- ====================================================================== -->
-        <!-- CONTEÚDO PRINCIPAL DO DASHBOARD (Oculto inicialmente)                  -->
-        <!-- ====================================================================== -->
+        <!-- CONTEÚDO PRINCIPAL DO DASHBOARD -->
         <div id="main-content" class="hidden">
             <header>
                 <h1>Dashboard Financeiro</h1>
@@ -395,7 +364,6 @@
 
             <main>
                 <div id="dashboard">
-                    <!-- Seção de Filtros e Exportação -->
                     <section class="filters">
                         <label for="period-filter">Período:</label>
                         <select id="period-filter">
@@ -407,7 +375,6 @@
                         <button id="export-csv">Exportar Vendas (CSV)</button>
                     </section>
 
-                    <!-- Cards de KPIs -->
                     <section class="kpi-cards">
                         <div class="card">
                             <h3>Faturamento Bruto</h3>
@@ -427,7 +394,6 @@
                         </div>
                     </section>
                     
-                    <!-- Gráficos de Vendas e Categorias -->
                     <section class="charts">
                         <div class="chart-container">
                             <h3>Vendas Diárias</h3>
@@ -439,7 +405,6 @@
                         </div>
                     </section>
 
-                    <!-- Seção de Simulação de Preços -->
                      <section class="card">
                         <h3>Simulador de Preço e Promoção</h3>
                         <div class="simulation-container">
@@ -459,7 +424,6 @@
                         </div>
                     </section>
 
-                    <!-- Tabela de Controle de Estoque -->
                     <section class="card">
                         <h3>Controle de Estoque</h3>
                         <div class="stock-table-container">
@@ -473,7 +437,6 @@
                                     </tr>
                                 </thead>
                                 <tbody id="stock-table-body">
-                                    <!-- Linhas da tabela são geradas dinamicamente via JavaScript -->
                                 </tbody>
                             </table>
                         </div>
@@ -485,26 +448,35 @@
 
     </div>
 
-    <!-- JavaScript Interno -->
-    <script>
-    
-    const firebaseConfig = {
-        apiKey: "AIzaSyD344kcvkOOdbjuHIvT_QFKuEZTAv5bdQw",
-        authDomain: "saas-bling.firebaseapp.com",
-        projectId: "saas-bling",
-        storageBucket: "saas-bling.firebasestorage.app",
-        messagingSenderId: "306250086612",
-        appId: "1:306250086612:web:df917dec1b30875a316341",
-        measurementId: "G-GWJZDPVP49"
-    };
-    
+    <!-- JavaScript Interno com tag module para aceitar imports do Firebase -->
+    <script type="module">
+    // Importações Oficiais do Firebase SDK v10
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { 
+        getAuth, 
+        createUserWithEmailAndPassword, 
+        signInWithEmailAndPassword, 
+        signOut, 
+        onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAtASw8oUnlpwGyGZYTvQxNxai2FFbmSBA",
+  authDomain: "saas-bling-f778b.firebaseapp.com",
+  projectId: "saas-bling-f778b",
+  storageBucket: "saas-bling-f778b.firebasestorage.app",
+  messagingSenderId: "895244837624",
+  appId: "1:895244837624:web:9b0c7b0d829796fe56d10d",
+  measurementId: "G-Z1JFP2P7XB"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     document.addEventListener('DOMContentLoaded', () => {
 
-        /* 
-         * ======================================================================
-         * 1. SIMULAÇÃO DE API (BLING SIMULADO) E GERAÇÃO DE DADOS
-         * ======================================================================
-        */
+        /* 2. DADOS SIMULADOS DO DASHBOARD (MANTIDOS) */
         const BlingAPISimulator = {
             products:,
             customers:,
@@ -533,16 +505,10 @@
                 }
                 return sales.sort((a, b) => new Date(a.date) - new Date(b.date)); 
             },
-            getProducts() { return this.products; },
-            getCategories() { return; }
+            getProducts() { return this.products; }
         };
 
-        /* 
-         * ======================================================================
-         * 2. LÓGICA DO SISTEMA DE LOGIN E CADASTRO SIMULADO
-         * Utiliza localStorage para persistir usuários e a sessão
-         * ======================================================================
-        */
+        /* 3. LÓGICA DE AUTENTICAÇÃO COM O FIREBASE */
         const loginScreen = document.getElementById('login-screen');
         const registerScreen = document.getElementById('register-screen');
         const mainContent = document.getElementById('main-content');
@@ -559,15 +525,7 @@
         const goToRegister = document.getElementById('go-to-register');
         const goToLogin = document.getElementById('go-to-login');
 
-        // Inicializa o "banco de dados" de usuários simulados
-        let usersDB = JSON.parse(localStorage.getItem('dashboard_users'));
-        if (!usersDB) {
-            // Conta admin padrão caso seja o primeiro acesso
-            usersDB = { admin: 'admin' };
-            localStorage.setItem('dashboard_users', JSON.stringify(usersDB));
-        }
-
-        // Navegação entre Login e Cadastro
+        // Navegação entre Telas
         goToRegister.addEventListener('click', (e) => {
             e.preventDefault();
             loginScreen.classList.add('hidden');
@@ -584,28 +542,27 @@
             loginError.style.visibility = 'hidden';
         });
 
-        /**
-         * Verifica se o usuário está logado
-         */
-        function checkLoginState() {
-            const loggedInUser = localStorage.getItem('loggedInUser');
-            if (loggedInUser) {
-                welcomeMessage.textContent = `Bem-vindo(a), ${loggedInUser}!`;
+        // Observador Global de Estado de Autenticação
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Se o usuário estiver logado
+                welcomeMessage.textContent = `Logado como: ${user.email}`;
                 loginScreen.classList.add('hidden');
                 registerScreen.classList.add('hidden');
                 mainContent.classList.remove('hidden');
-                initializeApp(); 
+                initializeAppDashboard(); // Carrega gráficos
             } else {
+                // Se não estiver logado
                 loginScreen.classList.remove('hidden');
                 registerScreen.classList.add('hidden');
                 mainContent.classList.add('hidden');
             }
-        }
+        });
 
-        // Lógica de Submissão do Cadastro
+        // Cadastro
         registerForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('reg-username').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-password').value;
             const confirmPassword = document.getElementById('reg-password-confirm').value;
 
@@ -616,59 +573,64 @@
                 return;
             }
 
-            if (usersDB) {
-                registerMsg.textContent = "Nome de usuário já existe.";
-                registerMsg.style.color = "var(--danger-color)";
-                registerMsg.style.visibility = "visible";
-                return;
-            }
-
-            // Salva o novo usuário no localStorage
-            usersDB = password;
-            localStorage.setItem('dashboard_users', JSON.stringify(usersDB));
-
-            registerMsg.textContent = "Conta criada com sucesso! Faça login.";
-            registerMsg.style.color = "var(--success-color)";
-            registerMsg.style.visibility = "visible";
-
-            setTimeout(() => {
-                goToLogin.click();
-            }, 2000);
+            // Criar usuário no Firebase
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    registerMsg.textContent = "Conta criada com sucesso! Carregando dashboard...";
+                    registerMsg.style.color = "var(--success-color)";
+                    registerMsg.style.visibility = "visible";
+                    // o onAuthStateChanged detectará a mudança automaticamente e mudará a tela
+                })
+                .catch((error) => {
+                    let errorMessage = "Erro ao criar conta.";
+                    if (error.code === 'auth/email-already-in-use') errorMessage = "Este e-mail já está em uso.";
+                    if (error.code === 'auth/weak-password') errorMessage = "A senha deve ter pelo menos 6 caracteres.";
+                    if (error.code === 'auth/invalid-email') errorMessage = "E-mail inválido.";
+                    
+                    registerMsg.textContent = errorMessage;
+                    registerMsg.style.color = "var(--danger-color)";
+                    registerMsg.style.visibility = "visible";
+                });
         });
 
-        // Lógica de Submissão de Login
+        // Login
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
-            // Verifica as credenciais no "banco" (usersDB)
-            if (usersDB && usersDB === password) {
-                localStorage.setItem('loggedInUser', username);
-                checkLoginState();
-            } else {
-                loginError.style.visibility = 'visible';
-                setTimeout(() => { loginError.style.visibility = 'hidden'; }, 3000);
-            }
+            // Fazer login no Firebase
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Logado com sucesso - o onAuthStateChanged cuidará do resto
+                })
+                .catch((error) => {
+                    let errorMessage = "E-mail ou senha inválidos.";
+                    if (error.code === 'auth/invalid-credential') errorMessage = "Credenciais incorretas.";
+                    
+                    loginError.textContent = errorMessage;
+                    loginError.style.visibility = 'visible';
+                    setTimeout(() => { loginError.style.visibility = 'hidden'; }, 4000);
+                });
         });
 
         // Logout
         logoutButton.addEventListener('click', () => {
-            localStorage.removeItem('loggedInUser');
-            if(window.salesChartInstance) window.salesChartInstance.destroy();
-            if(window.categoryChartInstance) window.categoryChartInstance.destroy();
-            checkLoginState();
+            signOut(auth).then(() => {
+                // Limpa os gráficos para a próxima sessão
+                if(window.salesChartInstance) window.salesChartInstance.destroy();
+                if(window.categoryChartInstance) window.categoryChartInstance.destroy();
+            }).catch((error) => {
+                console.error("Erro ao deslogar", error);
+            });
         });
 
-        /* 
-         * ======================================================================
-         * 3. LÓGICA PRINCIPAL DO DASHBOARD E CÁLCULOS FINANCEIROS
-         * ======================================================================
-        */
+
+        /* 4. LÓGICA PRINCIPAL DO DASHBOARD E CÁLCULOS FINANCEIROS */
         let allSalesData = [];
         let allProductsData =[];
 
-        function initializeApp() {
+        function initializeAppDashboard() {
             if (allSalesData.length === 0) {
                 allSalesData = BlingAPISimulator.generateDailySales();
                 allProductsData = BlingAPISimulator.getProducts();
@@ -748,7 +710,7 @@
             window.salesChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels,
+                    labels: labels,
                     datasets:
                 },
                 options: { responsive: true, maintainAspectRatio: false }
@@ -772,9 +734,9 @@
             window.categoryChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels,
+                    labels: labels,
                     datasets:[{
-                        data,
+                        data: data,
                         backgroundColor:
                     }]
                 },
@@ -802,12 +764,7 @@
             });
         }
 
-        /* 
-         * ======================================================================
-         * 4. FUNCIONALIDADES EXTRAS (SIMULAÇÃO E EXPORTAÇÃO)
-         * ======================================================================
-        */
-        
+        /* 5. FUNCIONALIDADES EXTRAS (SIMULAÇÃO E EXPORTAÇÃO) */
         function populateSimulationProducts() {
             const select = document.getElementById('sim-product');
             select.innerHTML = '';
@@ -854,7 +811,7 @@
             doc.setFontSize(11);
             doc.text(`Período: ${period}`, 14, 30);
             
-            const kpiData =,,,,
+            const kpiData = [,,,
             ];
             
             doc.autoTable({ startY: 40, head:], body: kpiData });
@@ -887,13 +844,6 @@
             link.click();
             document.body.removeChild(link);
         }
-
-        /* 
-         * ======================================================================
-         * 5. INICIALIZAÇÃO DA APLICAÇÃO
-         * ======================================================================
-        */
-        checkLoginState();
 
     });
     </script>
