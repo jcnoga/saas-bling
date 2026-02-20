@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Dashboard Financeiro - Loja Física</title>
+    
+    <!-- CDNs Externas para Gráficos e PDF -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
+
+    <!-- CSS Interno -->
+    <style>
+        /* 
+         * ======================================================================
+         * CSS - ESTILIZAÇÃO DA APLICAÇÃO
+         * Design minimalista, moderno e responsivo.
+         * ======================================================================
+        */
+
+        /* Variáveis de Cores e Estilos Globais */
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #6b7280;
+            --background-color: #f3f4f6;
+            --surface-color: #ffffff;
+            --text-color: #111827;
+            --danger-color: #ef4444;
+            --success-color: #22c55e;
+            --warning-color: #f97316;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Estrutura Principal da Aplicação */
+        #app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--surface-color);
+            padding: 1rem 2rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        #user-info button {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #user-info button:hover {
+            background-color: #d03c3c;
+        }
+
+        main {
+            flex-grow: 1;
+            padding: 2rem;
+        }
+
+        /* Estilos da Tela de Login */
+        #login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--primary-color);
+        }
+
+        #login-form {
+            background-color: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        #login-form h2 {
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        #login-form input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+        }
+
+        #login-form button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        #login-form button:hover {
+            background-color: #4338ca;
+        }
+
+        #login-error {
+            color: var(--danger-color);
+            margin-top: 1rem;
+            visibility: hidden; /* Oculto por padrão */
+        }
+
+        /* Estilos do Dashboard */
+        #dashboard {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        /* Filtros e Controles */
+        .filters {
+            background-color: var(--surface-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filters label {
+            font-weight: 500;
+        }
+
+        .filters select, .filters button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .filters button {
+             background-color: var(--primary-color);
+             color: white;
+             border: none;
+        }
+        
+        .filters button:hover {
+            background-color: #4338ca;
+        }
+
+        /* Cards de KPIs (Indicadores Chave de Performance) */
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .card h3 {
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Gráficos */
+        .charts {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .chart-container {
+            background-color: var(--surface-color);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            position: relative;
+            min-height: 400px;
+        }
+
+        /* Tabela de Estoque */
+        .stock-table-container {
+            overflow-x: auto; /* Garante rolagem horizontal em telas pequenas */
+        }
+        
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .stock-table th, .stock-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .stock-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+        }
+
+        .stock-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: white;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .stock-status.low { background-color: var(--danger-color); }
+        .stock-status.medium { background-color: var(--warning-color); }
+        .stock-status.ok { background-color: var(--success-color); }
+        
+        /* Seção de Simulação de Preços */
+        .simulation-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            align-items: center;
+        }
+        
+        .simulation-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .simulation-form select, .simulation-form input {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: var(--border-radius);
+        }
+
+        .simulation-form button {
+            padding: 0.6rem;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .simulation-form button:hover {
+            background-color: #16a34a;
+        }
+
+        .simulation-result p { font-size: 1.2rem; }
+        .simulation-result span {
+            font-weight: 700;
+            color: var(--success-color);
+            font-size: 1.5rem;
+        }
+
+        /* Classes Utilitárias */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 992px) {
+            .charts {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            main {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Estrutura principal da aplicação -->
+    <div id="app">
+
+        <!-- ====================================================================== -->
+        <!-- TELA DE LOGIN (Visível inicialmente)                                   -->
+        <!-- ====================================================================== -->
+        <section id="login-screen">
+            <form id="login-form">
+                <h2>Login - Dashboard Financeiro</h2>
+                <input type="text" id="username" placeholder="Usuário (ex: admin)" required>
+                <input type="password" id="password" placeholder="Senha (ex: admin)" required>
+                <button type="submit">Entrar</button>
+                <p id="login-error">Usuário ou senha inválidos.</p>
+            </form>
+        </section>
+
+        <!-- ====================================================================== -->
+        <!-- CONTEÚDO PRINCIPAL DO DASHBOARD (Oculto inicialmente)                  -->
+        <!-- ====================================================================== -->
+        <div id="main-content" class="hidden">
+            <header>
+                <h1>Dashboard Financeiro</h1>
+                <div id="user-info">
+                    <span id="welcome-message"></span>
+                    <button id="logout-button">Sair</button>
+                </div>
+            </header>
+
+            <main>
+                <div id="dashboard">
+                    <!-- Seção de Filtros e Exportação -->
+                    <section class="filters">
+                        <label for="period-filter">Período:</label>
+                        <select id="period-filter">
+                            <option value="30" selected>Últimos 30 dias</option>
+                            <option value="60">Últimos 60 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                        </select>
+                        <button id="export-pdf">Exportar Relatório PDF</button>
+                        <button id="export-csv">Exportar Vendas (CSV)</button>
+                    </section>
+
+                    <!-- Cards de KPIs -->
+                    <section class="kpi-cards">
+                        <div class="card">
+                            <h3>Faturamento Bruto</h3>
+                            <p class="value" id="kpi-faturamento-bruto">R$ 0,00</p>
+                        </div>
+                        <div class="card">
+                            <h3>Lucro Líquido</h3>
+                            <p class="value" id="kpi-lucro-liquido">R$ 0,00</p>
+                        </div>
+                        <div class="card">
+                            <h3>Ticket Médio</h3>
+                            <p class="value" id="kpi-ticket-medio">R$ 0,00</p>
+                        </div>
+                        <div class="card">
+                            <h3>Margem de Lucro</h3>
+                            <p class="value" id="kpi-margem-lucro">0,00%</p>
+                        </div>
+                    </section>
+                    
+                    <!-- Gráficos de Vendas e Categorias -->
+                    <section class="charts">
+                        <div class="chart-container">
+                            <h3>Vendas Diárias</h3>
+                            <canvas id="salesChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Vendas por Categoria</h3>
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </section>
+
+                    <!-- Seção de Simulação de Preços -->
+                     <section class="card">
+                        <h3>Simulador de Preço e Promoção</h3>
+                        <div class="simulation-container">
+                            <div class="simulation-form">
+                                <label for="sim-product">Selecione o Produto:</label>
+                                <select id="sim-product"></select>
+                                <label for="sim-discount">Desconto a aplicar (%):</label>
+                                <input type="number" id="sim-discount" value="0" min="0" max="100" placeholder="Ex: 10">
+                                <label for="sim-sales-increase">Aumento esperado nas vendas (%):</label>
+                                <input type="number" id="sim-sales-increase" value="10" min="0" placeholder="Ex: 20">
+                                <button id="simulate-btn">Simular Impacto</button>
+                            </div>
+                            <div class="simulation-result">
+                                <p>Novo Faturamento Estimado:</p>
+                                <span id="sim-result-value">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Tabela de Controle de Estoque -->
+                    <section class="card">
+                        <h3>Controle de Estoque</h3>
+                        <div class="stock-table-container">
+                            <table class="stock-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Categoria</th>
+                                        <th>Estoque Atual</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stock-table-body">
+                                    <!-- Linhas da tabela são geradas dinamicamente via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                </div>
+            </main>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Interno -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        /* 
+         * ======================================================================
+         * 1. SIMULAÇÃO DE API (BLING SIMULADO) E GERAÇÃO DE DADOS
+         * Esta seção simula a obtenção de dados de um sistema ERP como o Bling.
+         * O faturamento mensal é calibrado para ficar em torno de R$50.000.
+         * ======================================================================
+        */
+        const BlingAPISimulator = {
+            // Definição de produtos com custo, preço de venda e categoria
+            products: [
+                { id: 1, name: 'Smartphone Pro X', category: 'Eletrônicos', cost: 1800, price: 2999.90, stock: 30 },
+                { id: 2, name: 'Fone Bluetooth SoundMax', category: 'Acessórios', cost: 150, price: 349.90, stock: 80 },
+                { id: 3, name: 'Capa Protetora Silicone', category: 'Acessórios', cost: 15, price: 59.90, stock: 150 },
+                { id: 4, name: 'Notebook Gamer Fire', category: 'Eletrônicos', cost: 4500, price: 6999.90, stock: 15 },
+                { id: 5, name: 'Camiseta Algodão Premium', category: 'Vestuário', cost: 25, price: 79.90, stock: 200 },
+                { id: 6, name: 'Calça Jeans Slim Fit', category: 'Vestuário', cost: 70, price: 199.90, stock: 120 },
+                { id: 7, name: 'Tênis Running Boost', category: 'Calçados', cost: 120, price: 349.90, stock: 18 }, // Estoque baixo
+                { id: 8, name: 'Mochila Executiva Impermeável', category: 'Acessórios', cost: 90, price: 249.90, stock: 45 }, // Estoque em atenção
+                { id: 9, name: 'Smartwatch Health+', category: 'Eletrônicos', cost: 600, price: 1299.90, stock: 40 },
+                { id: 10, name: 'Livro "A Ascensão do Dragão"', category: 'Livros', cost: 20, price: 49.90, stock: 100 },
+            ],
+
+            // Clientes para simulação de vendas
+            customers: [
+                { id: 101, name: 'João da Silva' }, { id: 102, name: 'Maria Oliveira' },
+                { id: 103, name: 'Carlos Pereira' }, { id: 104, name: 'Ana Costa' },
+                { id: 105, name: 'Pedro Martins' }
+            ],
+
+            /**
+             * Gera vendas diárias simuladas para um número específico de dias.
+             * A lógica ajusta a quantidade de vendas para atingir o faturamento alvo.
+             * @param {number} days - O número de dias para gerar vendas.
+             * @returns {Array} - Uma lista de objetos de venda.
+             */
+            generateDailySales(days = 90) {
+                const sales = [];
+                const dailyTarget = 50000 / 30; // Faturamento diário médio para atingir R$50k/mês
+
+                for (let i = 0; i < days; i++) {
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    let salesForDay = 0;
+
+                    // Gera vendas aleatórias até atingir próximo da meta diária com variação
+                    while (salesForDay < dailyTarget * (0.8 + Math.random() * 0.4)) {
+                        const product = this.products[Math.floor(Math.random() * this.products.length)];
+                        const quantity = (product.category === 'Acessórios' || product.category === 'Vestuário') ? (Math.floor(Math.random() * 3) + 1) : 1;
+                        const customer = this.customers[Math.floor(Math.random() * this.customers.length)];
+                        
+                        sales.push({
+                            id: sales.length + 1,
+                            date: date.toISOString().split('T')[0],
+                            customerId: customer.id,
+                            product,
+                            quantity,
+                            total: product.price * quantity,
+                        });
+                        salesForDay += product.price * quantity;
+                    }
+                }
+                return sales.sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordena por data
+            },
+
+            getProducts() { return this.products; },
+            getCategories() { return [...new Set(this.products.map(p => p.category))]; }
+        };
+
+        /* 
+         * ======================================================================
+         * 2. LÓGICA DO SISTEMA DE LOGIN SIMULADO
+         * Utiliza localStorage para persistir o estado de login no navegador.
+         * ======================================================================
+        */
+        const loginScreen = document.getElementById('login-screen');
+        const mainContent = document.getElementById('main-content');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const logoutButton = document.getElementById('logout-button');
+        const welcomeMessage = document.getElementById('welcome-message');
+
+        /**
+         * Verifica no localStorage se o usuário está logado e alterna a visibilidade das telas.
+         */
+        function checkLoginState() {
+            const loggedInUser = localStorage.getItem('loggedInUser');
+            if (loggedInUser) {
+                welcomeMessage.textContent = `Bem-vindo(a), ${loggedInUser}!`;
+                loginScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                initializeApp(); // Inicia o dashboard somente após login
+            } else {
+                loginScreen.classList.remove('hidden');
+                mainContent.classList.add('hidden');
+            }
+        }
+
+        // Evento de submit do formulário de login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Simulação de autenticação (usuário/senha fixos)
+            if (username === 'admin' && password === 'admin') {
+                localStorage.setItem('loggedInUser', username);
+                checkLoginState();
+            } else {
+                loginError.style.visibility = 'visible';
+                setTimeout(() => { loginError.style.visibility = 'hidden'; }, 3000);
+            }
+        });
+
+        // Evento de clique no botão de logout
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('loggedInUser');
+            // Destrói instâncias dos gráficos para evitar memory leaks e bugs de renderização
+            if(window.salesChartInstance) window.salesChartInstance.destroy();
+            if(window.categoryChartInstance) window.categoryChartInstance.destroy();
+            checkLoginState();
+        });
+
+        /* 
+         * ======================================================================
+         * 3. LÓGICA PRINCIPAL DO DASHBOARD E CÁLCULOS FINANCEIROS
+         * ======================================================================
+        */
+        let allSalesData = [];
+        let allProductsData = [];
+
+        /**
+         * Função principal que inicializa todo o dashboard.
+         */
+        function initializeApp() {
+            // Gera os dados simulados (apenas uma vez por sessão)
+            if (allSalesData.length === 0) {
+                allSalesData = BlingAPISimulator.generateDailySales();
+                allProductsData = BlingAPISimulator.getProducts();
+            }
+            
+            populateSimulationProducts();
+            setupEventListeners();
+            updateDashboard(30); // Renderiza o dashboard com o período padrão
+        }
+
+        /**
+         * Configura todos os event listeners da aplicação para interatividade.
+         */
+        function setupEventListeners() {
+            document.getElementById('period-filter').addEventListener('change', (e) => {
+                updateDashboard(Number(e.target.value));
+            });
+            document.getElementById('export-pdf').addEventListener('click', exportToPDF);
+            document.getElementById('export-csv').addEventListener('click', exportToCSV);
+            document.getElementById('simulate-btn').addEventListener('click', runPriceSimulation);
+        }
+
+        /**
+         * Filtra os dados de vendas com base no período selecionado.
+         * @param {number} days - O número de dias a serem considerados (ex: 30, 60, 90).
+         * @returns {Array} - Vendas filtradas para o período.
+         */
+        function filterDataByPeriod(days) {
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - days);
+            return allSalesData.filter(sale => new Date(sale.date) >= cutoffDate);
+        }
+
+        /**
+         * Orquestra a atualização de todos os componentes do dashboard.
+         * @param {number} days - O período em dias.
+         */
+        function updateDashboard(days) {
+            const filteredSales = filterDataByPeriod(days);
+            
+            // --- Cálculos Financeiros ---
+            const grossRevenue = calculateGrossRevenue(filteredSales);
+            // Calcula o número de vendas únicas (agrupando por data e cliente)
+            const uniqueSalesCount = new Set(filteredSales.map(s => s.date + s.customerId)).size;
+            const averageTicket = calculateAverageTicket(grossRevenue, uniqueSalesCount);
+            const cmv = calculateCMV(filteredSales);
+            // Custos fixos simulados (aluguel, salários, etc.) para a loja de 100m²
+            // Proporcional ao período selecionado para manter a coerência
+            const fixedCosts = 12000 * (days / 30); 
+            const netProfit = calculateNetProfit(grossRevenue, cmv, fixedCosts);
+            const profitMargin = calculateProfitMargin(netProfit, grossRevenue);
+
+            // --- Atualização da UI ---
+            updateKPIs({ grossRevenue, netProfit, averageTicket, profitMargin });
+            updateSalesChart(filteredSales, days);
+            updateCategoryChart(filteredSales);
+            updateStockTable();
+        }
+
+        // --- Funções de Cálculo Financeiro ---
+        const calculateGrossRevenue = (sales) => sales.reduce((acc, sale) => acc + sale.total, 0);
+        const calculateAverageTicket = (revenue, count) => (count > 0 ? revenue / count : 0);
+        const calculateCMV = (sales) => sales.reduce((acc, sale) => acc + (sale.product.cost * sale.quantity), 0);
+        const calculateNetProfit = (revenue, cmv, costs) => revenue - cmv - costs;
+        const calculateProfitMargin = (profit, revenue) => (revenue > 0 ? (profit / revenue) * 100 : 0);
+        const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        
+        // --- Funções de Atualização da Interface (UI) ---
+        function updateKPIs({ grossRevenue, netProfit, averageTicket, profitMargin }) {
+            document.getElementById('kpi-faturamento-bruto').textContent = formatCurrency(grossRevenue);
+            document.getElementById('kpi-lucro-liquido').textContent = formatCurrency(netProfit);
+            document.getElementById('kpi-ticket-medio').textContent = formatCurrency(averageTicket);
+            document.getElementById('kpi-margem-lucro').textContent = `${profitMargin.toFixed(2).replace('.', ',')}%`;
+        }
+        
+        function updateSalesChart(sales, days) {
+            const salesByDay = {};
+            const labels = [];
+            
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const label = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                labels.push(label);
+                salesByDay[date.toISOString().split('T')[0]] = 0;
+            }
+
+            sales.forEach(sale => {
+                if (salesByDay[sale.date] !== undefined) salesByDay[sale.date] += sale.total;
+            });
+
+            const data = Object.values(salesByDay);
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            if(window.salesChartInstance) window.salesChartInstance.destroy(); // Previne sobreposição
+
+            window.salesChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Faturamento Diário',
+                        data,
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+        
+        function updateCategoryChart(sales) {
+            const salesByCategory = sales.reduce((acc, sale) => {
+                const cat = sale.product.category;
+                acc[cat] = (acc[cat] || 0) + sale.total;
+                return acc;
+            }, {});
+            
+            const labels = Object.keys(salesByCategory);
+            const data = Object.values(salesByCategory);
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            if(window.categoryChartInstance) window.categoryChartInstance.destroy();
+            
+            window.categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels,
+                    datasets: [{
+                        data,
+                        backgroundColor: ['#4f46e5', '#3b82f6', '#10b981', '#f97316', '#ef4444', '#8b5cf6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function updateStockTable() {
+            const tbody = document.getElementById('stock-table-body');
+            tbody.innerHTML = '';
+            
+            allProductsData.forEach(product => {
+                let statusClass = 'ok', statusText = 'OK';
+                if (product.stock < 20) { statusClass = 'low'; statusText = 'Baixo'; } 
+                else if (product.stock < 50) { statusClass = 'medium'; statusText = 'Atenção'; }
+
+                const row = `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.stock} unidades</td>
+                        <td><span class="stock-status ${statusClass}">${statusText}</span></td>
+                    </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        /* 
+         * ======================================================================
+         * 4. FUNCIONALIDADES EXTRAS (SIMULAÇÃO E EXPORTAÇÃO)
+         * ======================================================================
+        */
+        
+        function populateSimulationProducts() {
+            const select = document.getElementById('sim-product');
+            select.innerHTML = '';
+            allProductsData.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.name} (${formatCurrency(p.price)})`;
+                select.appendChild(option);
+            });
+        }
+
+        function runPriceSimulation() {
+            const productId = parseInt(document.getElementById('sim-product').value);
+            const discount = parseFloat(document.getElementById('sim-discount').value) || 0;
+            const salesIncrease = parseFloat(document.getElementById('sim-sales-increase').value) || 0;
+
+            const product = allProductsData.find(p => p.id === productId);
+            if (!product) return;
+
+            const days = parseInt(document.getElementById('period-filter').value);
+            const currentSales = filterDataByPeriod(days);
+            const currentRevenue = calculateGrossRevenue(currentSales);
+            
+            const productSales = currentSales.filter(s => s.product.id === productId);
+            const productRevenue = calculateGrossRevenue(productSales);
+            const productQuantitySold = productSales.reduce((acc, s) => acc + s.quantity, 0);
+
+            const newPrice = product.price * (1 - discount / 100);
+            const newQuantity = productQuantitySold * (1 + salesIncrease / 100);
+            const newProductRevenue = newPrice * newQuantity;
+            const otherProductsRevenue = currentRevenue - productRevenue;
+            const newTotalRevenue = otherProductsRevenue + newProductRevenue;
+
+            document.getElementById('sim-result-value').textContent = formatCurrency(newTotalRevenue);
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const period = document.getElementById('period-filter').selectedOptions[0].text;
+            
+            doc.setFontSize(18);
+            doc.text("Relatório Financeiro", 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Período: ${period}`, 14, 30);
+            
+            const kpiData = [
+                ["Faturamento Bruto", document.getElementById('kpi-faturamento-bruto').textContent],
+                ["Lucro Líquido Estimado", document.getElementById('kpi-lucro-liquido').textContent],
+                ["Ticket Médio", document.getElementById('kpi-ticket-medio').textContent],
+                ["Margem de Lucro", document.getElementById('kpi-margem-lucro').textContent],
+            ];
+            
+            doc.autoTable({ startY: 40, head: [['Indicador', 'Valor']], body: kpiData });
+            doc.autoTable({
+                startY: doc.previousAutoTable.finalY + 10,
+                head: [['Produto', 'Categoria', 'Estoque Atual']],
+                body: allProductsData.map(p => [p.name, p.category, p.stock]),
+            });
+            
+            doc.save(`relatorio-financeiro-${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+        
+        function exportToCSV() {
+            const days = parseInt(document.getElementById('period-filter').value);
+            const salesToExport = filterDataByPeriod(days);
+            
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Data;Produto;Categoria;Quantidade;Valor_Unitario;Total_Venda\r\n"; // Usando ; como separador
+            
+            salesToExport.forEach(sale => {
+                const row = [
+                    sale.date,
+                    `"${sale.product.name}"`, // Aspas para garantir que vírgulas no nome não quebrem o CSV
+                    sale.product.category,
+                    sale.quantity,
+                    sale.product.price.toFixed(2).replace('.', ','),
+                    sale.total.toFixed(2).replace('.', ',')
+                ].join(';');
+                csvContent += row + "\r\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `relatorio-vendas-${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        /* 
+         * ======================================================================
+         * 5. INICIALIZAÇÃO DA APLICAÇÃO
+         * Verifica o estado de login assim que o DOM estiver carregado.
+         * ======================================================================
+        */
+        checkLoginState();
+
+    });
+    </script>
+</body>
+</html>

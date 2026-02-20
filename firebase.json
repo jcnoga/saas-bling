@@ -1,0 +1,9 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyD344kcvkOOdbjuHIvT_QFKuEZTAv5bdQw",
+  authDomain: "saas-bling.firebaseapp.com",
+  projectId: "saas-bling",
+  storageBucket: "saas-bling.firebasestorage.app",
+  messagingSenderId: "306250086612",
+  appId: "1:306250086612:web:df917dec1b30875a316341",
+  measurementId: "G-GWJZDPVP49"
+};
