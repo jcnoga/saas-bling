@@ -3,848 +3,655 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SaaS Dashboard Financeiro - Loja Física</title>
+    <title>FashionFlow | CRM Inteligente para Moda</title>
     
-    <!-- CDNs Externas para Gráficos e PDF -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
-
-    <!-- CSS Interno -->
-    <style>
-        :root {
-            --primary-color: #4f46e5;
-            --secondary-color: #6b7280;
-            --background-color: #f3f4f6;
-            --surface-color: #ffffff;
-            --text-color: #111827;
-            --danger-color: #ef4444;
-            --success-color: #22c55e;
-            --warning-color: #f97316;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-        }
-
-        #app {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background-color: var(--surface-color);
-            padding: 1rem 2rem;
-            box-shadow: var(--box-shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        header h1 {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-        }
-        
-        #user-info button {
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        #user-info button:hover {
-            background-color: #d03c3c;
-        }
-
-        main {
-            flex-grow: 1;
-            padding: 2rem;
-        }
-
-        /* Estilos das Telas de Autenticação (Login / Cadastro) */
-        #login-screen, #register-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: var(--primary-color);
-        }
-
-        #login-form, #register-form {
-            background-color: var(--surface-color);
-            padding: 2.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        
-        #login-form h2, #register-form h2 {
-            margin-bottom: 1.5rem;
-            color: var(--text-color);
-        }
-
-        #login-form input, #register-form input {
-            width: 100%;
-            padding: 0.8rem;
-            margin-bottom: 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: var(--border-radius);
-        }
-
-        #login-form button, #register-form button {
-            width: 100%;
-            padding: 0.8rem;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        
-        #login-form button:hover, #register-form button:hover {
-            background-color: #4338ca;
-        }
-
-        #login-error, #register-msg {
-            margin-top: 1rem;
-            visibility: hidden;
-            font-size: 0.9rem;
-            min-height: 20px;
-        }
-
-        #login-error {
-            color: var(--danger-color);
-        }
-
-        .auth-link {
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-            color: var(--secondary-color);
-        }
-
-        .auth-link a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .auth-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Estilos do Dashboard */
-        #dashboard {
-            display: grid;
-            gap: 1.5rem;
-        }
-
-        .filters {
-            background-color: var(--surface-color);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .filters label {
-            font-weight: 500;
-        }
-
-        .filters select, .filters button {
-            padding: 0.5rem 1rem;
-            border: 1px solid #d1d5db;
-            border-radius: var(--border-radius);
-            background-color: white;
-            cursor: pointer;
-        }
-
-        .filters button {
-             background-color: var(--primary-color);
-             color: white;
-             border: none;
-        }
-        
-        .filters button:hover {
-            background-color: #4338ca;
-        }
-
-        .kpi-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .card {
-            background-color: var(--surface-color);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-        }
-
-        .card h3 {
-            margin-bottom: 0.5rem;
-            color: var(--secondary-color);
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .card .value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .charts {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 1.5rem;
-        }
-        
-        .chart-container {
-            background-color: var(--surface-color);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            position: relative;
-            min-height: 400px;
-        }
-
-        .stock-table-container {
-            overflow-x: auto;
-        }
-        
-        .stock-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .stock-table th, .stock-table td {
-            padding: 0.8rem;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        
-        .stock-table th {
-            background-color: #f9fafb;
-            font-weight: 600;
-        }
-
-        .stock-status {
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: white;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .stock-status.low { background-color: var(--danger-color); }
-        .stock-status.medium { background-color: var(--warning-color); }
-        .stock-status.ok { background-color: var(--success-color); }
-        
-        .simulation-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            align-items: center;
-        }
-        
-        .simulation-form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .simulation-form select, .simulation-form input {
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: var(--border-radius);
-        }
-
-        .simulation-form button {
-            padding: 0.6rem;
-            background-color: var(--success-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        
-        .simulation-form button:hover {
-            background-color: #16a34a;
-        }
-
-        .simulation-result p { font-size: 1.2rem; }
-        .simulation-result span {
-            font-weight: 700;
-            color: var(--success-color);
-            font-size: 1.5rem;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 992px) {
-            .charts { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            header { flex-direction: column; gap: 1rem; }
-            main { padding: 1rem; }
-        }
-    </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Quill Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="app">
-
-        <!-- TELA DE LOGIN -->
-        <section id="login-screen">
-            <form id="login-form">
-                <h2>Login - Dashboard</h2>
-                <input type="email" id="email" placeholder="Seu E-mail" required>
-                <input type="password" id="password" placeholder="Sua Senha" required>
-                <button type="submit">Entrar</button>
-                <p id="login-error">E-mail ou senha inválidos.</p>
-                
-                <p class="auth-link">Não possui uma conta? <a href="#" id="go-to-register">Cadastre-se</a></p>
-            </form>
-        </section>
-
-        <!-- TELA DE CADASTRO -->
-        <section id="register-screen" class="hidden">
-            <form id="register-form">
-                <h2>Criar Conta</h2>
-                <input type="email" id="reg-email" placeholder="E-mail" required>
-                <input type="password" id="reg-password" placeholder="Senha (mínimo 6 caracteres)" required>
-                <input type="password" id="reg-password-confirm" placeholder="Confirme a senha" required>
-                <button type="submit">Cadastrar</button>
-                <p id="register-msg"></p>
-                
-                <p class="auth-link">Já possui uma conta? <a href="#" id="go-to-login">Faça login</a></p>
-            </form>
-        </section>
-
-        <!-- CONTEÚDO PRINCIPAL DO DASHBOARD -->
-        <div id="main-content" class="hidden">
-            <header>
-                <h1>Dashboard Financeiro</h1>
-                <div id="user-info">
-                    <span id="welcome-message"></span>
-                    <button id="logout-button">Sair</button>
-                </div>
-            </header>
-
-            <main>
-                <div id="dashboard">
-                    <section class="filters">
-                        <label for="period-filter">Período:</label>
-                        <select id="period-filter">
-                            <option value="30" selected>Últimos 30 dias</option>
-                            <option value="60">Últimos 60 dias</option>
-                            <option value="90">Últimos 90 dias</option>
-                        </select>
-                        <button id="export-pdf">Exportar Relatório PDF</button>
-                        <button id="export-csv">Exportar Vendas (CSV)</button>
-                    </section>
-
-                    <section class="kpi-cards">
-                        <div class="card">
-                            <h3>Faturamento Bruto</h3>
-                            <p class="value" id="kpi-faturamento-bruto">R$ 0,00</p>
-                        </div>
-                        <div class="card">
-                            <h3>Lucro Líquido</h3>
-                            <p class="value" id="kpi-lucro-liquido">R$ 0,00</p>
-                        </div>
-                        <div class="card">
-                            <h3>Ticket Médio</h3>
-                            <p class="value" id="kpi-ticket-medio">R$ 0,00</p>
-                        </div>
-                        <div class="card">
-                            <h3>Margem de Lucro</h3>
-                            <p class="value" id="kpi-margem-lucro">0,00%</p>
-                        </div>
-                    </section>
-                    
-                    <section class="charts">
-                        <div class="chart-container">
-                            <h3>Vendas Diárias</h3>
-                            <canvas id="salesChart"></canvas>
-                        </div>
-                        <div class="chart-container">
-                            <h3>Vendas por Categoria</h3>
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </section>
-
-                     <section class="card">
-                        <h3>Simulador de Preço e Promoção</h3>
-                        <div class="simulation-container">
-                            <div class="simulation-form">
-                                <label for="sim-product">Selecione o Produto:</label>
-                                <select id="sim-product"></select>
-                                <label for="sim-discount">Desconto a aplicar (%):</label>
-                                <input type="number" id="sim-discount" value="0" min="0" max="100" placeholder="Ex: 10">
-                                <label for="sim-sales-increase">Aumento esperado nas vendas (%):</label>
-                                <input type="number" id="sim-sales-increase" value="10" min="0" placeholder="Ex: 20">
-                                <button id="simulate-btn">Simular Impacto</button>
-                            </div>
-                            <div class="simulation-result">
-                                <p>Novo Faturamento Estimado:</p>
-                                <span id="sim-result-value">R$ 0,00</span>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="card">
-                        <h3>Controle de Estoque</h3>
-                        <div class="stock-table-container">
-                            <table class="stock-table">
-                                <thead>
-                                    <tr>
-                                        <th>Produto</th>
-                                        <th>Categoria</th>
-                                        <th>Estoque Atual</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stock-table-body">
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-
-                </div>
-            </main>
-        </div>
-
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
     </div>
 
-    <!-- JavaScript Interno com tag module para aceitar imports do Firebase -->
-    <script type="module">
-    // Importações Oficiais do Firebase SDK v10
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { 
-        getAuth, 
-        createUserWithEmailAndPassword, 
-        signInWithEmailAndPassword, 
-        signOut, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>FashionFlow CRM</h2>
+                <p>Gestão Inteligente para Moda</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="loginEmail" required value="teste@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginPassword" required value="123456">
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <div class="auth-links">
+                    <a href="#" onclick="showRegister()">Criar conta</a> | 
+                    <a href="#" onclick="showForgotPassword()">Esqueci minha senha</a>
+                </div>
+            </form>
 
-    // 1. CONFIGURAÇÃO E INICIALIZAÇÃO DO FIREBASE
-const firebaseConfig = {
-  apiKey: "AIzaSyCViQQ59zW1qpgUnkxc_uGdoq8q-iJFD1o",
-  authDomain: "enviazap-482917.firebaseapp.com",
-  projectId: "enviazap-482917",
-  storageBucket: "enviazap-482917.firebasestorage.app",
-  messagingSenderId: "178214147202",
-  appId: "1:178214147202:web:dee7a3a08b8232fa4a509b",
-  measurementId: "G-JYCTCVD68J"
-};
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+            <!-- Register Form -->
+            <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="regPassword" required minlength="6">
+                </div>
+                <button type="submit" class="btn">Cadastrar</button>
+                <div class="auth-links">
+                    <a href="#" onclick="showLogin()">Voltar ao login</a>
+                </div>
+            </form>
 
-    document.addEventListener('DOMContentLoaded', () => {
+            <!-- Forgot Password Form -->
+            <form id="forgotForm" class="hidden" onsubmit="handleForgotPassword(event)">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="forgotEmail" required>
+                </div>
+                <button type="submit" class="btn">Recuperar senha</button>
+                <div class="auth-links">
+                    <a href="#" onclick="showLogin()">Voltar ao login</a>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        /* 2. DADOS SIMULADOS DO DASHBOARD (MANTIDOS) */
-        const BlingAPISimulator = {
-            products:,
-            customers:,
-            generateDailySales(days = 90) {
-                const sales =[];
-                const dailyTarget = 50000 / 30; 
-                for (let i = 0; i < days; i++) {
-                    const date = new Date();
-                    date.setDate(date.getDate() - i);
-                    let salesForDay = 0;
-                    while (salesForDay < dailyTarget * (0.8 + Math.random() * 0.4)) {
-                        const product = this.products;
-                        const quantity = (product.category === 'Acessórios' || product.category === 'Vestuário') ? (Math.floor(Math.random() * 3) + 1) : 1;
-                        const customer = this.customers;
+    <!-- App Container -->
+    <div id="appContainer" class="app-container hidden">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>FashionFlow</h2>
+                <p>CRM Inteligente</p>
+                <div id="modeBadge" class="mode-badge demo">MODO SIMULAÇÃO</div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="navigateTo('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('clientes')">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('produtos')">
+                    <i class="fas fa-tshirt"></i>
+                    <span>Produtos</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('vendas')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Vendas</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('financeiro')">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Financeiro</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('email-marketing')">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>Email Marketing</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('relatorios')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Relatórios</span>
+                </div>
+                <div class="nav-item" onclick="navigateTo('configuracoes')">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <button class="btn-secondary" id="menuToggle" onclick="toggleSidebar()" style="width: auto; display: none;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div></div>
+                
+                <div class="user-info">
+                    <div class="user-details">
+                        <div class="user-name" id="userNameDisplay"></div>
+                        <div class="user-email" id="userEmailDisplay"></div>
+                    </div>
+                    <div id="trialDaysDisplay" class="trial-badge"></div>
+                    <div id="blingStatus" class="bling-status" onclick="testarConexaoBling()" title="Clique para testar conexão">
+                        <i class="fas fa-plug"></i> <span id="blingStatusText">Desconectado</span>
+                    </div>
+                    <button class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="btn-secondary" onclick="logout()" style="width: auto;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Strategic Insight -->
+            <div id="strategicInsight" class="strategic-insight hidden"></div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="hidden">
+                <div class="kpi-grid" id="kpiGrid"></div>
+                <div class="charts-grid" id="chartsContainer">
+                    <div class="chart-card full-width">
+                        <div class="chart-header"><span class="chart-title">Receita x Despesa x Lucro</span></div>
+                        <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header"><span class="chart-title">Vendas por Categoria</span></div>
+                        <div class="chart-container"><canvas id="categoryChart"></canvas></div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header"><span class="chart-title">Curva ABC</span></div>
+                        <div class="chart-container"><canvas id="abcChart"></canvas></div>
+                    </div>
+                    <div class="chart-card full-width">
+                        <div class="chart-header"><span class="chart-title">Fluxo de Caixa Diário</span></div>
+                        <div class="chart-container"><canvas id="cashflowChart"></canvas></div>
+                    </div>
+                </div>
+                
+                <div class="reports-section">
+                    <div class="section-header"><span class="section-title">Alertas Inteligentes</span></div>
+                    <div id="alertsList"></div>
+                </div>
+                
+                <div class="reports-section">
+                    <div class="section-header"><span class="section-title">Aniversariantes do Mês</span></div>
+                    <div class="table-responsive">
+                        <table id="birthdayTable">
+                            <thead><tr><th>Cliente</th><th>Data</th><th>Última Compra</th><th>Status Promo</th><th>Ação</th></tr></thead>
+                            <tbody id="birthdayBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="reports-section">
+                    <div class="section-header"><span class="section-title">Clientes Inativos (60+ dias)</span></div>
+                    <div class="table-responsive">
+                        <table id="inactiveTable">
+                            <thead><tr><th>Cliente</th><th>Dias Inativo</th><th>Última Compra</th><th>Ticket Médio</th><th>Status Promo</th></tr></thead>
+                            <tbody id="inactiveBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clientes Content -->
+            <div id="clientesContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header">
+                        <span class="section-title">Gestão de Clientes</span>
+                        <div class="report-filters">
+                            <div class="date-range-picker">
+                                <input type="date" id="clientStartDate" onchange="filterClients()">
+                                <span>até</span>
+                                <input type="date" id="clientEndDate" onchange="filterClients()">
+                            </div>
+                            <button class="btn-secondary btn-sm" onclick="setCurrentMonthClientFilter()">
+                                <i class="fas fa-calendar"></i> Mês Atual
+                            </button>
+                            <select id="clientStatusFilter" onchange="filterClients()">
+                                <option value="">Todos os Status</option>
+                                <option value="fiel">🟢 Clientes Fiéis</option>
+                                <option value="vip">👑 Clientes VIP</option>
+                                <option value="regular">🟡 Clientes Regulares</option>
+                                <option value="inativo">🔴 Clientes Inativos</option>
+                                <option value="aniversariante">🎂 Aniversariantes</option>
+                                <option value="sumido">⚠️ Clientes Sumidos</option>
+                                <option value="promo-enviada">📧 Com Promoção</option>
+                            </select>
+                            <input type="text" id="clientSearch" placeholder="Buscar..." onkeyup="filterClients()">
+                        </div>
+                    </div>
+                    
+                    <div id="promoHistoryModal" class="projection-card hidden">
+                        <div class="section-header">
+                            <span class="section-title">Histórico de Promoções</span>
+                            <button class="btn-secondary btn-sm" onclick="closePromoHistory()"><i class="fas fa-times"></i> Fechar</button>
+                        </div>
+                        <div id="promoHistoryContent" class="promo-history"></div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th><th>Cidade</th><th>Data Cadastro</th><th>Aniversário</th>
+                                    <th>Última Compra</th><th>Frequência</th><th>Ticket Médio</th>
+                                    <th>Status</th><th>Última Promoção</th><th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clientsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produtos Content -->
+            <div id="produtosContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header">
+                        <span class="section-title">Gestão de Produtos</span>
+                        <div class="report-filters">
+                            <select id="productCategoryFilter" onchange="filterProducts()">
+                                <option value="">Todas Categorias</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Infantil">Infantil</option>
+                                <option value="Acessórios">Acessórios</option>
+                            </select>
+                            <select id="productStatusFilter" onchange="filterProducts()">
+                                <option value="">Todos</option>
+                                <option value="encalhado">📦 Encalhados</option>
+                                <option value="alto-giro">⚡ Alto Giro</option>
+                                <option value="baixo-giro">🐢 Baixo Giro</option>
+                                <option value="ruptura">🔴 Ruptura</option>
+                                <option value="risco-ruptura">🟡 Risco Ruptura</option>
+                            </select>
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="excludeNormalProducts" checked onchange="filterProducts()">
+                                Excluir normais
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Encalhados</span></div>
+                            <div class="kpi-value" id="encalhadosCount">0</div>
+                            <div class="kpi-comparison">R$ <span id="capitalParado">0</span> parado</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Em Ruptura</span></div>
+                            <div class="kpi-value" id="rupturaCount">0</div>
+                            <div class="kpi-comparison">Risco: <span id="riscoCount">0</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Alto Giro</span></div>
+                            <div class="kpi-value" id="altoGiroCount">0</div>
+                            <div class="kpi-comparison">Médio: <span id="giroMedioAlto">0</span>x</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Baixo Giro</span></div>
+                            <div class="kpi-value" id="baixoGiroCount">0</div>
+                            <div class="kpi-comparison">Médio: <span id="giroMedioBaixo">0</span>x</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>SKU</th><th>Nome</th><th>Categoria</th><th>Custo</th><th>Preço</th>
+                                    <th>Margem</th><th>Estoque</th><th>Giro</th><th>Dias sem Venda</th><th>Curva</th><th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vendas Content -->
+            <div id="vendasContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header">
+                        <span class="section-title">Histórico de Vendas</span>
+                        <div class="report-filters">
+                            <div class="date-range-picker">
+                                <input type="date" id="vendaStartDate" onchange="filterVendas()">
+                                <span>até</span>
+                                <input type="date" id="vendaEndDate" onchange="filterVendas()">
+                            </div>
+                            <button class="btn-secondary btn-sm" onclick="setCurrentMonthFilter()">
+                                <i class="fas fa-calendar"></i> Mês Atual
+                            </button>
+                            <select id="vendaStatusFilter" onchange="filterVendas()">
+                                <option value="">Todos</option>
+                                <option value="concluida">✅ Concluídas</option>
+                                <option value="cancelada">❌ Canceladas</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Total de Vendas</span></div>
+                            <div class="kpi-value" id="totalVendasCount">0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Cancelamento</span></div>
+                            <div class="kpi-value" id="taxaCancelamento">0%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">À Prazo</span></div>
+                            <div class="kpi-value" id="vendasPrazo">0%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">Ticket Médio</span></div>
+                            <div class="kpi-value" id="vendasTicketMedio">R$ 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th><th>Cliente</th><th>Produto</th><th>Categoria</th>
+                                    <th>Qtd</th><th>Valor</th><th>Pagamento</th><th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendasTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financeiro Content -->
+            <div id="financeiroContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header">
+                        <span class="section-title">Análise Financeira</span>
+                        <div class="report-filters">
+                            <select id="periodoFilter" onchange="renderFinanceiro()">
+                                <option value="6">Últimos 6 meses</option>
+                                <option value="12">Últimos 12 meses</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Receita Total<span class="tooltip-text">Soma das vendas</span></span></div>
+                            <div class="kpi-value" id="receitaTotal">R$ 0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Margem Contribuição<span class="tooltip-text">Receita - Custos Variáveis</span></span></div>
+                            <div class="kpi-value" id="margemContribuicao">R$ 0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Ponto Equilíbrio<span class="tooltip-text">Mínimo para cobrir custos</span></span></div>
+                            <div class="kpi-value" id="pontoEquilibrio">R$ 0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Ticket Médio<span class="tooltip-text">Valor médio por venda</span></span></div>
+                            <div class="kpi-value" id="ticketMedioFinanceiro">R$ 0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Crescimento<span class="tooltip-text">Vs mês anterior</span></span></div>
+                            <div class="kpi-value" id="crescimentoPercent">0%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Inadimplência<span class="tooltip-text">Vendas não pagas</span></span></div>
+                            <div class="kpi-value" id="inadimplencia">0%</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Giro Caixa<span class="tooltip-text">Rotação do capital</span></span></div>
+                            <div class="kpi-value" id="giroCaixa">0x</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title tooltip">Lucratividade<span class="tooltip-text">Lucro / Receita</span></span></div>
+                            <div class="kpi-value" id="lucratividade">0%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="consulting-section">
+                        <div class="consulting-title"><i class="fas fa-chart-pie"></i> Consultoria Financeira</div>
+                        <div class="consulting-grid" id="financialConsulting"></div>
+                        <div class="recommendation-box" id="financialRecommendation"></div>
+                    </div>
+                    
+                    <div class="projection-card">
+                        <div class="projection-title">Simulação Redução de Custos</div>
+                        <div class="simulation-controls">
+                            <input type="range" id="reducaoCustos" min="0" max="30" value="10" onchange="simularReducaoCustos()">
+                            <span id="reducaoPercent">10%</span>
+                        </div>
+                        <div id="resultadoSimulacao" class="simulation-result"></div>
+                    </div>
+                    
+                    <div class="projection-card">
+                        <div class="projection-title">Simulação Aumento Ticket</div>
+                        <div class="simulation-controls">
+                            <input type="range" id="aumentoTicket" min="0" max="50" value="15" onchange="simularAumentoTicket()">
+                            <span id="aumentoPercent">15%</span>
+                        </div>
+                        <div id="resultadoTicket" class="simulation-result"></div>
+                    </div>
+                    
+                    <div class="projection-card">
+                        <div class="projection-title">Simulação Aumento Vendas</div>
+                        <div class="simulation-controls">
+                            <input type="range" id="aumentoVendas" min="0" max="100" value="20" onchange="simularAumentoVendas()">
+                            <span id="aumentoVendasPercent">20%</span>
+                        </div>
+                        <div id="resultadoVendas" class="simulation-result"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Marketing Content -->
+            <div id="emailMarketingContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header">
+                        <span class="section-title">📧 Email Marketing</span>
+                        <button class="btn-success btn-sm" onclick="showNewCampaign()">
+                            <i class="fas fa-plus"></i> Nova Campanha
+                        </button>
+                    </div>
+                    
+                    <div class="email-templates-grid" id="templatesGrid"></div>
+                    
+                    <div id="campaignForm" class="hidden">
+                        <div class="email-editor-container">
+                            <div class="section-header">
+                                <span class="section-title">Nova Campanha</span>
+                                <button class="btn-secondary btn-sm" onclick="cancelCampaign()">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Nome da Campanha</label>
+                                <input type="text" id="campaignName" placeholder="Ex: Promoção Aniversário">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Assunto do E-mail</label>
+                                <input type="text" id="emailSubject" placeholder="Ex: {nome}, ganhe 20% de desconto!">
+                            </div>
+                            
+                            <div class="variable-selector">
+                                <label>Variáveis</label>
+                                <div class="variable-buttons">
+                                    <button class="variable-btn" onclick="insertVariable('{nome}')">{nome}</button>
+                                    <button class="variable-btn" onclick="insertVariable('{aniversario}')">{aniversario}</button>
+                                    <button class="variable-btn" onclick="insertVariable('{ultima_compra}')">{ultima_compra}</button>
+                                    <button class="variable-btn" onclick="insertVariable('{dias_inativo}')">{dias_inativo}</button>
+                                    <button class="variable-btn" onclick="insertVariable('{ticket_medio}')">{ticket_medio}</button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Conteúdo</label>
+                                <div id="editor"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Público</label>
+                                <div class="recipient-selector" id="recipientSelector"></div>
+                            </div>
+                            
+                            <div id="customFilters" class="hidden">
+                                <div class="form-group">
+                                    <label>Dias Inativos</label>
+                                    <input type="number" id="inactiveDaysFilter" value="60">
+                                </div>
+                                <div class="form-group">
+                                    <label>Valor Mínimo VIP</label>
+                                    <input type="number" id="vipMinValue" value="5000">
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-options">
+                                <label><input type="radio" name="schedule" value="now" checked> Agora</label>
+                                <label><input type="radio" name="schedule" value="later"> Agendar</label>
+                                <input type="datetime-local" id="scheduleDate" disabled>
+                            </div>
+                            
+                            <div style="display: flex; gap: 15px;">
+                                <button class="btn-success" onclick="sendCampaign()">Enviar</button>
+                                <button class="btn-secondary" onclick="testSend()">Teste</button>
+                                <button class="btn-secondary" onclick="saveTemplate()">Salvar Template</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="campaign-history">
+                        <div class="section-header"><span class="section-title">Histórico</span></div>
+                        <div id="campaignHistory"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relatórios Content -->
+            <div id="relatoriosContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header">
+                        <span class="section-title">Relatórios</span>
+                        <div class="report-filters">
+                            <select id="tipoRelatorio" onchange="gerarRelatorio()">
+                                <option value="clientes">Clientes VIP</option>
+                                <option value="vendas">Análise Vendas</option>
+                                <option value="estoque">Estoque</option>
+                                <option value="financeiro">Projeção</option>
+                                <option value="marketing">Marketing</option>
+                            </select>
+                            <button class="btn" onclick="exportarRelatorio()">Exportar</button>
+                        </div>
+                    </div>
+                    
+                    <div id="relatorioConteudo" class="strategic-insight"></div>
+                    
+                    <div class="projection-card">
+                        <div class="projection-title">Rankings (Top <input type="number" id="rankingLimit" value="20" min="5" max="20" style="width:60px" onchange="atualizarRankings()">)</div>
                         
-                        sales.push({
-                            id: sales.length + 1,
-                            date: date.toISOString().split('T'),
-                            customerId: customer.id,
-                            product,
-                            quantity,
-                            total: product.price * quantity,
-                        });
-                        salesForDay += product.price * quantity;
-                    }
-                }
-                return sales.sort((a, b) => new Date(a.date) - new Date(b.date)); 
-            },
-            getProducts() { return this.products; }
-        };
+                        <div class="kpi-grid" style="grid-template-columns: repeat(2,1fr);">
+                            <div class="kpi-card">
+                                <div class="kpi-header"><span class="kpi-title">🔥 Mais Vendidos</span></div>
+                                <div id="maisVendidosRanking"></div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-header"><span class="kpi-title">❄️ Menos Vendidos</span></div>
+                                <div id="menosVendidosRanking"></div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-header"><span class="kpi-title">💰 Mais Lucrativos</span></div>
+                                <div id="maisLucrativosRanking"></div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-header"><span class="kpi-title">📉 Menos Lucrativos</span></div>
+                                <div id="menosLucrativosRanking"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="rankingSummary" style="margin-top:20px; display:flex; gap:20px; flex-wrap:wrap;"></div>
+                    </div>
+                </div>
+            </div>
 
-        /* 3. LÓGICA DE AUTENTICAÇÃO COM O FIREBASE */
-        const loginScreen = document.getElementById('login-screen');
-        const registerScreen = document.getElementById('register-screen');
-        const mainContent = document.getElementById('main-content');
-        
-        const loginForm = document.getElementById('login-form');
-        const registerForm = document.getElementById('register-form');
-        
-        const loginError = document.getElementById('login-error');
-        const registerMsg = document.getElementById('register-msg');
-        
-        const logoutButton = document.getElementById('logout-button');
-        const welcomeMessage = document.getElementById('welcome-message');
-
-        const goToRegister = document.getElementById('go-to-register');
-        const goToLogin = document.getElementById('go-to-login');
-
-        // Navegação entre Telas
-        goToRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginScreen.classList.add('hidden');
-            registerScreen.classList.remove('hidden');
-            registerForm.reset();
-            registerMsg.style.visibility = 'hidden';
-        });
-
-        goToLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerScreen.classList.add('hidden');
-            loginScreen.classList.remove('hidden');
-            loginForm.reset();
-            loginError.style.visibility = 'hidden';
-        });
-
-        // Observador Global de Estado de Autenticação
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Se o usuário estiver logado
-                welcomeMessage.textContent = `Logado como: ${user.email}`;
-                loginScreen.classList.add('hidden');
-                registerScreen.classList.add('hidden');
-                mainContent.classList.remove('hidden');
-                initializeAppDashboard(); // Carrega gráficos
-            } else {
-                // Se não estiver logado
-                loginScreen.classList.remove('hidden');
-                registerScreen.classList.add('hidden');
-                mainContent.classList.add('hidden');
-            }
-        });
-
-        // Cadastro
-        registerForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('reg-email').value.trim();
-            const password = document.getElementById('reg-password').value;
-            const confirmPassword = document.getElementById('reg-password-confirm').value;
-
-            if (password !== confirmPassword) {
-                registerMsg.textContent = "As senhas não coincidem.";
-                registerMsg.style.color = "var(--danger-color)";
-                registerMsg.style.visibility = "visible";
-                return;
-            }
-
-            // Criar usuário no Firebase
-            createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    registerMsg.textContent = "Conta criada com sucesso! Carregando dashboard...";
-                    registerMsg.style.color = "var(--success-color)";
-                    registerMsg.style.visibility = "visible";
-                    // o onAuthStateChanged detectará a mudança automaticamente e mudará a tela
-                })
-                .catch((error) => {
-                    let errorMessage = "Erro ao criar conta.";
-                    if (error.code === 'auth/email-already-in-use') errorMessage = "Este e-mail já está em uso.";
-                    if (error.code === 'auth/weak-password') errorMessage = "A senha deve ter pelo menos 6 caracteres.";
-                    if (error.code === 'auth/invalid-email') errorMessage = "E-mail inválido.";
+            <!-- Configurações Content -->
+            <div id="configuracoesContent" class="hidden">
+                <div class="reports-section">
+                    <div class="section-header"><span class="section-title">Configurações</span></div>
                     
-                    registerMsg.textContent = errorMessage;
-                    registerMsg.style.color = "var(--danger-color)";
-                    registerMsg.style.visibility = "visible";
-                });
-        });
-
-        // Login
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            // Fazer login no Firebase
-            signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // Logado com sucesso - o onAuthStateChanged cuidará do resto
-                })
-                .catch((error) => {
-                    let errorMessage = "E-mail ou senha inválidos.";
-                    if (error.code === 'auth/invalid-credential') errorMessage = "Credenciais incorretas.";
+                    <div id="ownerControlsSection" class="owner-controls-section hidden">
+                        <div class="owner-title"><i class="fas fa-crown"></i> Controle do Proprietário</div>
+                        <div class="control-group">
+                            <input type="email" id="creditEmail" placeholder="E-mail">
+                            <input type="number" id="creditDays" value="30" min="1">
+                            <button class="btn" onclick="grantCredits()">Conceder Créditos</button>
+                        </div>
+                    </div>
                     
-                    loginError.textContent = errorMessage;
-                    loginError.style.visibility = 'visible';
-                    setTimeout(() => { loginError.style.visibility = 'hidden'; }, 4000);
-                });
-        });
+                    <div class="bling-config">
+                        <h3><i class="fas fa-plug"></i> Integração Bling</h3>
+                        <div class="control-group">
+                            <label>Client ID</label>
+                            <input type="text" id="blingClientId">
+                        </div>
+                        <div class="control-group">
+                            <label>Client Secret</label>
+                            <input type="password" id="blingClientSecret">
+                        </div>
+                        <div class="control-group">
+                            <label>Código Auth</label>
+                            <input type="text" id="blingAuthCode">
+                        </div>
+                        <div class="control-group">
+                            <label>Access Token</label>
+                            <input type="text" id="blingAccessToken" readonly>
+                        </div>
+                        <div style="display:flex; gap:15px;">
+                            <button class="btn-success" onclick="autenticarBling()">Autenticar</button>
+                            <button class="btn-info" onclick="testarConexaoBling()">Testar</button>
+                            <button class="btn-warning" onclick="desconectarBling()">Desconectar</button>
+                        </div>
+                        <div id="blingTestResult" class="bling-test hidden"></div>
+                    </div>
+                    
+                    <div class="projection-card">
+                        <div class="projection-title">Fonte de Dados</div>
+                        <div class="control-group">
+                            <select id="dataSourceSelect" onchange="changeDataSource()">
+                                <option value="SIMULATION">Simulação</option>
+                                <option value="BLING_API">Bling API</option>
+                            </select>
+                            <select id="appModeSelect" onchange="changeAppMode()">
+                                <option value="DEMO">Modo Demo</option>
+                                <option value="AUTHORIZED">Autorizado</option>
+                            </select>
+                            <button class="btn" onclick="recarregarDados()">Recarregar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Logout
-        logoutButton.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                // Limpa os gráficos para a próxima sessão
-                if(window.salesChartInstance) window.salesChartInstance.destroy();
-                if(window.categoryChartInstance) window.categoryChartInstance.destroy();
-            }).catch((error) => {
-                console.error("Erro ao deslogar", error);
-            });
-        });
-
-
-        /* 4. LÓGICA PRINCIPAL DO DASHBOARD E CÁLCULOS FINANCEIROS */
-        let allSalesData = [];
-        let allProductsData =[];
-
-        function initializeAppDashboard() {
-            if (allSalesData.length === 0) {
-                allSalesData = BlingAPISimulator.generateDailySales();
-                allProductsData = BlingAPISimulator.getProducts();
-            }
-            populateSimulationProducts();
-            setupEventListeners();
-            updateDashboard(30); 
-        }
-
-        function setupEventListeners() {
-            document.getElementById('period-filter').addEventListener('change', (e) => {
-                updateDashboard(Number(e.target.value));
-            });
-            document.getElementById('export-pdf').addEventListener('click', exportToPDF);
-            document.getElementById('export-csv').addEventListener('click', exportToCSV);
-            document.getElementById('simulate-btn').addEventListener('click', runPriceSimulation);
-        }
-
-        function filterDataByPeriod(days) {
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - days);
-            return allSalesData.filter(sale => new Date(sale.date) >= cutoffDate);
-        }
-
-        function updateDashboard(days) {
-            const filteredSales = filterDataByPeriod(days);
-            
-            const grossRevenue = calculateGrossRevenue(filteredSales);
-            const uniqueSalesCount = new Set(filteredSales.map(s => s.date + s.customerId)).size;
-            const averageTicket = calculateAverageTicket(grossRevenue, uniqueSalesCount);
-            const cmv = calculateCMV(filteredSales);
-            const fixedCosts = 12000 * (days / 30); 
-            const netProfit = calculateNetProfit(grossRevenue, cmv, fixedCosts);
-            const profitMargin = calculateProfitMargin(netProfit, grossRevenue);
-
-            updateKPIs({ grossRevenue, netProfit, averageTicket, profitMargin });
-            updateSalesChart(filteredSales, days);
-            updateCategoryChart(filteredSales);
-            updateStockTable();
-        }
-
-        const calculateGrossRevenue = (sales) => sales.reduce((acc, sale) => acc + sale.total, 0);
-        const calculateAverageTicket = (revenue, count) => (count > 0 ? revenue / count : 0);
-        const calculateCMV = (sales) => sales.reduce((acc, sale) => acc + (sale.product.cost * sale.quantity), 0);
-        const calculateNetProfit = (revenue, cmv, costs) => revenue - cmv - costs;
-        const calculateProfitMargin = (profit, revenue) => (revenue > 0 ? (profit / revenue) * 100 : 0);
-        const formatCurrency = (value) => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        
-        function updateKPIs({ grossRevenue, netProfit, averageTicket, profitMargin }) {
-            document.getElementById('kpi-faturamento-bruto').textContent = formatCurrency(grossRevenue);
-            document.getElementById('kpi-lucro-liquido').textContent = formatCurrency(netProfit);
-            document.getElementById('kpi-ticket-medio').textContent = formatCurrency(averageTicket);
-            document.getElementById('kpi-margem-lucro').textContent = `${profitMargin.toFixed(2).replace('.', ',')}%`;
-        }
-        
-        function updateSalesChart(sales, days) {
-            const salesByDay = {};
-            const labels =[];
-            
-            for (let i = days - 1; i >= 0; i--) {
-                const date = new Date();
-                date.setDate(date.getDate() - i);
-                const label = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-                labels.push(label);
-                salesByDay] = 0;
-            }
-
-            sales.forEach(sale => {
-                if (salesByDay !== undefined) salesByDay += sale.total;
-            });
-
-            const data = Object.values(salesByDay);
-            const ctx = document.getElementById('salesChart').getContext('2d');
-            
-            if(window.salesChartInstance) window.salesChartInstance.destroy(); 
-
-            window.salesChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets:
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-        
-        function updateCategoryChart(sales) {
-            const salesByCategory = sales.reduce((acc, sale) => {
-                const cat = sale.product.category;
-                acc = (acc || 0) + sale.total;
-                return acc;
-            }, {});
-            
-            const labels = Object.keys(salesByCategory);
-            const data = Object.values(salesByCategory);
-
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            
-            if(window.categoryChartInstance) window.categoryChartInstance.destroy();
-            
-            window.categoryChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets:[{
-                        data: data,
-                        backgroundColor:
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function updateStockTable() {
-            const tbody = document.getElementById('stock-table-body');
-            tbody.innerHTML = '';
-            
-            allProductsData.forEach(product => {
-                let statusClass = 'ok', statusText = 'OK';
-                if (product.stock < 20) { statusClass = 'low'; statusText = 'Baixo'; } 
-                else if (product.stock < 50) { statusClass = 'medium'; statusText = 'Atenção'; }
-
-                const row = `
-                    <tr>
-                        <td>${product.name}</td>
-                        <td>${product.category}</td>
-                        <td>${product.stock} unidades</td>
-                        <td><span class="stock-status ${statusClass}">${statusText}</span></td>
-                    </tr>`;
-                tbody.insertAdjacentHTML('beforeend', row);
-            });
-        }
-
-        /* 5. FUNCIONALIDADES EXTRAS (SIMULAÇÃO E EXPORTAÇÃO) */
-        function populateSimulationProducts() {
-            const select = document.getElementById('sim-product');
-            select.innerHTML = '';
-            allProductsData.forEach(p => {
-                const option = document.createElement('option');
-                option.value = p.id;
-                option.textContent = `${p.name} (${formatCurrency(p.price)})`;
-                select.appendChild(option);
-            });
-        }
-
-        function runPriceSimulation() {
-            const productId = parseInt(document.getElementById('sim-product').value);
-            const discount = parseFloat(document.getElementById('sim-discount').value) || 0;
-            const salesIncrease = parseFloat(document.getElementById('sim-sales-increase').value) || 0;
-
-            const product = allProductsData.find(p => p.id === productId);
-            if (!product) return;
-
-            const days = parseInt(document.getElementById('period-filter').value);
-            const currentSales = filterDataByPeriod(days);
-            const currentRevenue = calculateGrossRevenue(currentSales);
-            
-            const productSales = currentSales.filter(s => s.product.id === productId);
-            const productRevenue = calculateGrossRevenue(productSales);
-            const productQuantitySold = productSales.reduce((acc, s) => acc + s.quantity, 0);
-
-            const newPrice = product.price * (1 - discount / 100);
-            const newQuantity = productQuantitySold * (1 + salesIncrease / 100);
-            const newProductRevenue = newPrice * newQuantity;
-            const otherProductsRevenue = currentRevenue - productRevenue;
-            const newTotalRevenue = otherProductsRevenue + newProductRevenue;
-
-            document.getElementById('sim-result-value').textContent = formatCurrency(newTotalRevenue);
-        }
-
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const period = document.getElementById('period-filter').selectedOptions.text;
-            
-            doc.setFontSize(18);
-            doc.text("Relatório Financeiro", 14, 22);
-            doc.setFontSize(11);
-            doc.text(`Período: ${period}`, 14, 30);
-            
-            const kpiData = [,,,
-            ];
-            
-            doc.autoTable({ startY: 40, head:], body: kpiData });
-            doc.autoTable({
-                startY: doc.previousAutoTable.finalY + 10,
-                head:],
-                body: allProductsData.map(p =>),
-            });
-            
-            doc.save(`relatorio-financeiro-${new Date().toISOString().slice(0,10)}.pdf`);
-        }
-        
-        function exportToCSV() {
-            const days = parseInt(document.getElementById('period-filter').value);
-            const salesToExport = filterDataByPeriod(days);
-            
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Data;Produto;Categoria;Quantidade;Valor_Unitario;Total_Venda\r\n"; 
-            
-            salesToExport.forEach(sale => {
-                const row =.join(';');
-                csvContent += row + "\r\n";
-            });
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `relatorio-vendas-${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-    });
-    </script>
+    <!-- JavaScript Principal -->
+    <script src="script.js"></script>
 </body>
 </html>
